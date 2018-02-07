@@ -253,7 +253,7 @@ class Asteroid(BasePolygon):
         of the screen.
         """
         cls.MAX_CENTRE_X, cls.MAX_CENTRE_Y = screen_width, screen_height
-        cls.MIN_SIDES = 10  # Minimum number of sides each asteroid can have
+        cls.MIN_SIDES = 10
         # Controls how much radius of asteroid points can vary
         cls.RADIUS_CONSTANT = screen_height // 120
         cls.MIN_SPEED = screen_height / 12
