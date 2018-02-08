@@ -338,19 +338,20 @@ class AsteroidsGame:
         self.clock = pygame.time.Clock()
         self.initialise_constants(screen_width, screen_height)
         self.exit = False
-        # initialise as constant of AsteroidsGame instead!!!
-        self.score_font = pygame.freetype.Font('Hyperspace.otf', h // 15)
+        self.font = pygame.freetype.Font('Hyperspace.otf')
         self.highscore = 0
         self.reset()
 
     def initialise_constants(self, screen_width, screen_height):
         """
-        Initialise constants for Ship, Asteroid, Bullet classes
-        which depend on the dimensions of the screen.
+        Initialise constants for Ship, Asteroid, Bullet classes which
+        depend on the dimensions of the screen.
         """
         Ship.initialise_constants(screen_width, screen_height)
         Asteroid.initialise_constants(screen_width, screen_height)
         Bullet.initialise_constants(screen_height)
+        self.score_font_size = screen_height // 18
+        self.score_position = (screen_height // 100, screen_height // 100)
 
     def reset(self):
         """Start a new game."""
@@ -382,9 +383,11 @@ class AsteroidsGame:
         if asteroid.size > 1:
             self.asteroids.extend(asteroid.split())
 
-    # draw_text function instead!!!
+    def draw_text(self, position, text, size):
+        self.font.render_to(self.surface, position, text, WHITE, size=size)
+
     def draw_score(self):
-        self.score_font.render_to(self.surface, (5, 5), str(self.score), WHITE)
+        self.draw_text(self.score_position, str(self.score), self.score_font_size)
 
     def event_handler(self):
         # could this be made more readable?
