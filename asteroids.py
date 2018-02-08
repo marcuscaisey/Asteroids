@@ -338,6 +338,7 @@ class AsteroidsGame:
         self.clock = pygame.time.Clock()
         self.initialise_constants(screen_width, screen_height)
         self.exit = False
+        # initialise as constant of AsteroidsGame instead!!!
         self.score_font = pygame.freetype.Font('Hyperspace.otf', h // 15)
         self.highscore = 0
         self.reset()
