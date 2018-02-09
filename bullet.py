@@ -1,15 +1,11 @@
 import pygame
 from pygame.math import Vector2
 
+from constants import W, H, SCREEN_AREA, WHITE
 
-pygame.display.init()
-screen_width = pygame.display.Info().current_w
-screen_height = pygame.display.Info().current_h
 
-WHITE = (255, 255, 255)
-
-SPEED = 0.8 * screen_height
-RADIUS = screen_height // 300
+SPEED = 0.8 * H
+RADIUS = H // 300
 LIFESPAN = 0.9  # Duration in seconds until bullet fades
 
 
@@ -26,26 +22,25 @@ class Bullet(Vector2):
         """Return True if bullet hits other polygon."""
         return other.collidepoint(self.centre) != 0
 
-    def wrap(self, screen_area):
+    def wrap(self):
         """
         Wrap bullet to opposite side of screen if bullet leaves
         screen area.
         """
-        if not self.hits(screen_area):
-            width, height = screen_area.P[2][0], screen_area.P[2][1]
+        if not self.hits(SCREEN_AREA):
             if ((self.centre.x < 0 and self.velocity.x < 0)
-               or (self.centre.x > width and self.velocity.x > 0)):
-                self.centre.x = width - self.centre.x
+               or (self.centre.x > W and self.velocity.x > 0)):
+                self.centre.x = W - self.centre.x
             elif ((self.centre.y < 0 and self.velocity.y < 0)
-                  or (self.centre.y > height and self.velocity.y > 0)):
-                self.centre.y = height - self.centre.y
+                  or (self.centre.y > H and self.velocity.y > 0)):
+                self.centre.y = H - self.centre.y
 
-    def update(self, screen_area, dt):
+    def update(self, dt):
         """Update bullet by dt seconds."""
         if self.duration < LIFESPAN:
             self.duration += dt
             self.centre += self.velocity * dt
-            self.wrap(screen_area)
+            self.wrap()
         else:
             self.faded = True
 

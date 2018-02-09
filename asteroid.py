@@ -1,26 +1,23 @@
 from __future__ import division
-import pygame
-from polygon import BasePolygon
-from pygame.math import Vector2
 from random import randint
 
-pygame.display.init()
-screen_width = pygame.display.Info().current_w
-screen_height = pygame.display.Info().current_h
+import pygame
+from pygame.math import Vector2
 
-WHITE = (255, 255, 255)
+from base_polygon import BasePolygon
+from constants import W, H, WHITE
 
-MAX_CENTRE_X, MAX_CENTRE_Y = screen_width, screen_height
+
 MIN_SIDES = 10
 # Controls how much radius of asteroid points can vary
-RADIUS_CONSTANT = screen_height // 120
-MIN_SPEED = 0.08 * screen_height
-MAX_SPEED = 0.18 * screen_height
-# Asteroid size to Radius conversion
+RADIUS_CONSTANT = H // 120
+MIN_SPEED = 0.08 * H
+MAX_SPEED = 0.18 * H
+# Asteroid size to radius conversion
 RADIUS = {
-    3: 0.08 * screen_height,  # Large
-    2: 0.04 * screen_height,  # Medium
-    1: 0.02 * screen_height,  # Small
+    3: 0.08 * H,  # Large
+    2: 0.04 * H,  # Medium
+    1: 0.02 * H,  # Small
 }
 
 
@@ -34,12 +31,12 @@ class Asteroid(BasePolygon):
 
     def initial_centre(self):
         """Return random position near edge of screen."""
-        x = randint(0, MAX_CENTRE_X)
-        y = randint(0, MAX_CENTRE_Y)
-        while 0.25 < x / MAX_CENTRE_X < 0.75:
-            x = randint(0, MAX_CENTRE_X)
-        while 0.25 < y / MAX_CENTRE_Y < 0.75:
-            y = randint(0, MAX_CENTRE_Y)
+        x = randint(0, W)
+        y = randint(0, H)
+        while 0.25 < x / W < 0.75:
+            x = randint(0, W)
+        while 0.25 < y / H < 0.75:
+            y = randint(0, H)
         return (x, y)
 
     def random_points(self, centre=None):
@@ -67,10 +64,10 @@ class Asteroid(BasePolygon):
         """Return two asteroids of next size."""
         return [Asteroid(self.C, self.size - 1) for _ in range(2)]
 
-    def update(self, screen_area, dt):
+    def update(self, dt):
         """Update asteroid by dt seconds."""
         self.move_ip(*self.velocity * dt)
-        self.wrap(screen_area)
+        self.wrap()
 
     def draw(self, surface):
         """Draw asteroid to surface."""
