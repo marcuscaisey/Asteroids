@@ -1,27 +1,24 @@
 import pygame
 from pygame.math import Vector2
 
-# COLOURS
-BLACK = (0, 0, 0)
+
+pygame.display.init()
+screen_width = pygame.display.Info().current_w
+screen_height = pygame.display.Info().current_h
+
 WHITE = (255, 255, 255)
+
+SPEED = 0.8 * screen_height
+RADIUS = screen_height // 300
+LIFESPAN = 0.9  # Duration in seconds until bullet fades
 
 
 class Bullet(Vector2):
     """Bullet object."""
 
-    @classmethod
-    def initialise_constants(cls, screen_height):
-        """
-        Initialise constants for Bullet which depend on the dimensions
-        of the screen.
-        """
-        cls.SPEED = 0.8 * screen_height
-        cls.RADIUS = screen_height // 300
-        cls.LIFESPAN = 0.9  # Duration in seconds until bullet fades
-
     def __init__(self, centre, direction):
         self.centre = Vector2(*centre)
-        self.velocity = Bullet.SPEED * direction
+        self.velocity = SPEED * direction
         self.duration = 0
         self.faded = False
 
@@ -45,7 +42,7 @@ class Bullet(Vector2):
 
     def update(self, screen_area, dt):
         """Update bullet by dt seconds."""
-        if self.duration < Bullet.LIFESPAN:
+        if self.duration < LIFESPAN:
             self.duration += dt
             self.centre += self.velocity * dt
             self.wrap(screen_area)
@@ -53,7 +50,7 @@ class Bullet(Vector2):
             self.faded = True
 
     def draw(self, surface):
-        """Draw bullet."""
+        """Draw bullet to surface."""
         # draw.circle takes only integer arguments for centre position
         int_centre = map(int, map(round, self.centre))
-        pygame.draw.circle(surface, WHITE, int_centre, Bullet.RADIUS)
+        pygame.draw.circle(surface, WHITE, int_centre, RADIUS)

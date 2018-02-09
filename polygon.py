@@ -1,6 +1,7 @@
-from pylygon import Polygon
-from math import sin, cos
+from math import cos, sin
+
 from numpy import array, dot
+from pylygon import Polygon
 
 
 class BasePolygon(Polygon):

@@ -1,51 +1,46 @@
 from __future__ import division
+
 import pygame
 import pygame.freetype
 from pylygon import Polygon
-from bullet import Bullet
-from ship import Ship
-from asteroid import Asteroid
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+from asteroid import Asteroid
+from ship import Ship
+
+pygame.display.init()
+screen_width = pygame.display.Info().current_w
+screen_height = pygame.display.Info().current_h
+
+
+BLACK, WHITE = (0, 0, 0), (255, 255, 255)
+
+START_OF_ROUND_TIME = 3  # Seconds to wait before starting new round
+INITIAL_ASTEROIDS = 4  # Number of asteroids at start of game
+
+# Scores for destroying each asteroid size
+SCORE = {
+    1: 100,  # Small asteroid
+    2: 50,  # Medium asteroid
+    3: 20,  # Large asteroid
+}
+SCORE_FONT_SIZE = screen_height // 18
+SCORE_POSITION = (screen_height // 90, screen_height // 90)
+
+MAX_FPS = 60
 
 
 class AsteroidsGame:
     """Asteroids game."""
 
-    INITIAL_ASTEROIDS = 4  # Number of asteroids at start of game
-    START_OF_ROUND_TIME = 3  # Seconds to wait before starting new round
-    # Scores for destroying each asteroid size
-    SCORE = {
-        3: 20,
-        2: 50,
-        1: 100,
-    }
-    MAX_FPS = 60
-
-    def __init__(self, screen_width, screen_height):
+    def __init__(self):
         w, h = screen_width, screen_height
         self.surface = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
-        pygame.display.set_caption('Asteroids')
         self.screen_area = Polygon([(0, 0), (w, 0), (w, h), (0, h)])
-        pygame.mouse.set_visible(False)
         self.clock = pygame.time.Clock()
-        self.initialise_constants(screen_width, screen_height)
         self.exit = False
         self.font = pygame.freetype.Font('Hyperspace.otf')
         self.highscore = 0
         self.reset()
-
-    def initialise_constants(self, screen_width, screen_height):
-        """
-        Initialise constants for Ship, Asteroid, Bullet classes which
-        depend on the dimensions of the screen.
-        """
-        Ship.initialise_constants(screen_width, screen_height)
-        Asteroid.initialise_constants(screen_width, screen_height)
-        Bullet.initialise_constants(screen_height)
-        self.score_font_size = screen_height // 18
-        self.score_position = (screen_height // 100, screen_height // 100)
 
     def reset(self):
         """Start a new game."""
@@ -65,7 +60,7 @@ class AsteroidsGame:
 
     def generate_asteroids(self):
         """Return list of 3 + self.round asteroids."""
-        number_of_asteroids = AsteroidsGame.INITIAL_ASTEROIDS + self.round - 1
+        number_of_asteroids = INITIAL_ASTEROIDS + self.round - 1
         return [Asteroid() for _ in range(number_of_asteroids)]
 
     def destroy_asteroid(self, asteroid):
@@ -81,7 +76,7 @@ class AsteroidsGame:
         self.font.render_to(self.surface, position, text, WHITE, size=size)
 
     def draw_score(self):
-        self.draw_text(self.score_position, str(self.score), self.score_font_size)
+        self.draw_text(SCORE_POSITION, str(self.score), SCORE_FONT_SIZE)
 
     def event_handler(self):
         # could this be made more readable?
@@ -117,11 +112,11 @@ class AsteroidsGame:
                 if self.ship.hits(asteroid):
                     self.destroy_asteroid(asteroid)
                 elif self.ship.shoots(asteroid):
-                    self.score += AsteroidsGame.SCORE[asteroid.size]
+                    self.score += SCORE[asteroid.size]
                     self.destroy_asteroid(asteroid)
         else:
             self.start_of_round_timer += dt
-            if self.start_of_round_timer > AsteroidsGame.START_OF_ROUND_TIME:
+            if self.start_of_round_timer > START_OF_ROUND_TIME:
                 self.start_new_round()
                 self.start_of_round_timer = 0
 
@@ -143,7 +138,7 @@ class AsteroidsGame:
             self.event_handler()
             if self.playing:
                 # Time since last frame in seconds
-                dt = self.clock.tick(AsteroidsGame.MAX_FPS) / 1000
+                dt = self.clock.tick(MAX_FPS) / 1000
                 self.update(dt)
                 self.draw()
             else:
@@ -151,11 +146,11 @@ class AsteroidsGame:
             pygame.display.update()
 
 
-def main(width=None, height=None):
+def main():
     pygame.init()
-    width = pygame.display.Info().current_w if width is None else width
-    height = pygame.display.Info().current_h if height is None else height
-    AsteroidsGame(width, height).play()
+    pygame.display.set_caption('Asteroids')
+    pygame.mouse.set_visible(False)
+    AsteroidsGame().play()
 
 
 if __name__ == '__main__':
