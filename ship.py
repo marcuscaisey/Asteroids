@@ -6,12 +6,13 @@ from pygame.math import Vector2
 
 from base_polygon import BasePolygon
 from bullet import Bullet
-from constants import W, H, WHITE
+from screen_constants import WIDTH, HEIGHT
 
 
-LENGTH = 0.07 * H
-INITIAL_CENTRE = (W / 2, H / 2)
-BOOST_FORCE = 0.5 * H
+WHITE = (255, 255, 255)
+
+LENGTH = 0.07 * HEIGHT
+BOOST_FORCE = 0.5 * HEIGHT
 ROTATE_SPEED = 0.8  # Speed in full rotations per second
 # Number of seconds that ship will be invincible for when invincible
 INVINCIBLE_TIME = 2
@@ -22,7 +23,7 @@ INVINCIBLE_FLICKER_RATE = 12
 class Ship(BasePolygon):
     """Ship object."""
 
-    def __init__(self, length=LENGTH, initial_centre=INITIAL_CENTRE):
+    def __init__(self, length=LENGTH, initial_centre=(WIDTH / 2, HEIGHT / 2)):
         self.length, self.width = length, 0.36 * length
         self.rear_length, self.rear_width = 0.75 * length, 0.27 * length
         self.flame_length, self.flame_width = 0.25 * length, 0.125 * length

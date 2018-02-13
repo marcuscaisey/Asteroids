@@ -4,23 +4,22 @@ import pygame
 import pygame.freetype
 
 from asteroid import Asteroid
-from constants import W, H, BLACK, WHITE
+from screen_constants import WIDTH, HEIGHT
 from ship import Ship
+from hud import HUD
 
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 INITIAL_ASTEROIDS = 4
-START_OF_ROUND_DELAY = 3
+START_OF_ROUND_DELAY = 2
 # Scores for destroying each asteroid size
 SCORE = {
     1: 100,  # Small asteroid
     2: 50,  # Medium asteroid
     3: 20,  # Large asteroid
 }
-SCORE_FONT_SIZE = 0.056 * H
-SCORE_POSITION = (0.02 * H, 0.02 * H)
-
-ICON_LENGTH = 0.04 * H
-LIFE_ICON = Ship(ICON_LENGTH, (0.86 * ICON_LENGTH, 2.625 * ICON_LENGTH))
 
 MAX_FPS = 60
 
@@ -29,7 +28,8 @@ class AsteroidsGame:
     """Asteroids game."""
 
     def __init__(self):
-        self.surface = pygame.display.set_mode((W, H), pygame.FULLSCREEN)
+        self.surface = pygame.display.set_mode((WIDTH, HEIGHT),
+                                               pygame.FULLSCREEN)
         self.clock = pygame.time.Clock()
         self.exit = False
         self.font = pygame.freetype.Font('Hyperspace.otf')
@@ -39,6 +39,7 @@ class AsteroidsGame:
     def reset(self):
         """Start a new game."""
         self.lives = 3
+        self.hud = HUD()
         self.ship = Ship()
         self.asteroids = []
         self.round = 0
@@ -68,11 +69,6 @@ class AsteroidsGame:
 
     def draw_text(self, text, size, position):
         self.font.render_to(self.surface, position, text, WHITE, size=size)
-
-    def draw_hud(self):
-        self.draw_text(str(self.score), SCORE_FONT_SIZE, SCORE_POSITION)
-        for i in range(self.lives):
-            LIFE_ICON.move(i * 2.7 * LIFE_ICON.width, 0).draw(self.surface)
 
     def draw_end_screen(self):
         """Draw game after game over."""
@@ -128,7 +124,7 @@ class AsteroidsGame:
         self.ship.draw(self.surface)
         for asteroid in self.asteroids:
             asteroid.draw(self.surface)
-        self.draw_hud()
+        self.hud.draw(self.surface, self.score, self.lives)
 
     def play(self):
         """Play game until exit is True."""

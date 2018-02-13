@@ -1,11 +1,13 @@
 import pygame
 from pygame.math import Vector2
 
-from constants import W, H, SCREEN_AREA, WHITE
+from screen_constants import WIDTH, HEIGHT, AREA
 
 
-SPEED = 0.8 * H
-RADIUS = H // 300
+WHITE = (255, 255, 255)
+
+SPEED = 0.8 * HEIGHT
+RADIUS = HEIGHT // 300
 LIFESPAN = 0.9  # Duration in seconds until bullet fades
 
 
@@ -27,13 +29,13 @@ class Bullet(Vector2):
         Wrap bullet to opposite side of screen if bullet leaves
         screen area.
         """
-        if not self.hits(SCREEN_AREA):
+        if not self.hits(AREA):
             if ((self.centre.x < 0 and self.velocity.x < 0)
-               or (self.centre.x > W and self.velocity.x > 0)):
-                self.centre.x = W - self.centre.x
+               or (self.centre.x > WIDTH and self.velocity.x > 0)):
+                self.centre.x = WIDTH - self.centre.x
             elif ((self.centre.y < 0 and self.velocity.y < 0)
-                  or (self.centre.y > H and self.velocity.y > 0)):
-                self.centre.y = H - self.centre.y
+                  or (self.centre.y > HEIGHT and self.velocity.y > 0)):
+                self.centre.y = HEIGHT - self.centre.y
 
     def update(self, dt):
         """Update bullet by dt seconds."""
