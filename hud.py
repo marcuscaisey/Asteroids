@@ -3,15 +3,16 @@ import pygame.freetype
 from screen_constants import HEIGHT
 from ship import Ship
 
+
 WHITE = (255, 255, 255)
 
-PADDING = 0.02 * HEIGHT  # Padding of HUD from corner of screen
+PADDING = 0.02 * HEIGHT
 SCORE_SIZE = 0.06 * HEIGHT
 ICON_LENGTH = 0.045 * HEIGHT
 
 
 class HUD:
-    """HUD object which displays score and number of lives ship has"""
+    """HUD object which displays score and number of lives ship has."""
     def __init__(self):
         pygame.freetype.init()
         self.font = pygame.freetype.Font('Hyperspace.otf', SCORE_SIZE)

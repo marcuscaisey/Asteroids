@@ -12,7 +12,7 @@ from screen_constants import WIDTH, HEIGHT
 WHITE = (255, 255, 255)
 
 LENGTH = 0.07 * HEIGHT
-BOOST_FORCE = 0.5 * HEIGHT
+BOOST_FORCE = 0.55 * HEIGHT
 ROTATE_SPEED = 0.8  # Speed in full rotations per second
 # Number of seconds that ship will be invincible for when invincible
 INVINCIBLE_TIME = 2
@@ -33,7 +33,7 @@ class Ship(BasePolygon):
         self.spawn()
 
     def spawn(self):
-        """Spawn ship at initial_centre."""
+        """Spawn ship at initial centre."""
         super(Ship, self).__init__(self.initial_points())
         self.C = self.initial_centre
         self.direction = Vector2(0, -1)
@@ -47,7 +47,7 @@ class Ship(BasePolygon):
         return [(-self.width, self.length), (0, 0), (self.width, self.length)]
 
     def move(self, x, y):
-        """Return a new ship moved by x, y"""
+        """Return a new ship moved by (x, y)."""
         return Ship(self.length, self.C + (x, y))
 
     def rotate(self, theta):
@@ -55,8 +55,8 @@ class Ship(BasePolygon):
         self.direction.rotate_ip(theta)
         self.rotate_ip(radians(theta))
 
-    def shoot_bullet(self):
-        """Append new bullet to list of fired bullets."""
+    def shoot(self):
+        """Shoot bullet in direction ship is facing."""
         # Bullets are fired from the nose of the ship
         self.fired_bullets.append(Bullet(self.P[1], self.direction))
 
@@ -67,7 +67,7 @@ class Ship(BasePolygon):
     def shoots(self, other):
         """
         Return True if one of ships bullets hits other and removes that
-        bullet from fired_bullets
+        bullet from fired_bullets.
         """
         for bullet in reversed(self.fired_bullets):
             if bullet.hits(other):
@@ -115,7 +115,7 @@ class Ship(BasePolygon):
         ]
 
     def draw(self, surface):
-        """Draw ship (and its boost flame if boosting) to surface."""
+        """Draw ship (and its boost flame) to surface."""
         # If invincible, ship should flicker INVINCIBLE_FLICKER_RATE (n) times
         # per second. So split each second into intervals of width 1/n (w).
         # Want ship to not be drawn every other w seconds, so floor divide

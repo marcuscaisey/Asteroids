@@ -14,8 +14,8 @@ LIFESPAN = 0.9  # Duration in seconds until bullet fades
 class Bullet(Vector2):
     """Bullet object."""
 
-    def __init__(self, centre, direction):
-        self.centre = Vector2(*centre)
+    def __init__(self, source, direction):
+        self.centre = Vector2(*source)
         self.velocity = SPEED * direction
         self.duration = 0
         self.faded = False
@@ -26,8 +26,7 @@ class Bullet(Vector2):
 
     def wrap(self):
         """
-        Wrap bullet to opposite side of screen if bullet leaves
-        screen area.
+        Wrap bullet to opposite side of screen if it leaves screen area.
         """
         if not self.hits(AREA):
             if ((self.centre.x < 0 and self.velocity.x < 0)
