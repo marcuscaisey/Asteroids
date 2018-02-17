@@ -58,7 +58,7 @@ class AsteroidsGame:
         self.asteroids = []
         self.saucers = []
         self.round = 0
-        self.lives = 10
+        self.lives = 3
         self.score = 0
         self.hud = HUD()
         self.start_of_round_timer = 0
