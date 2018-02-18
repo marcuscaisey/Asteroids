@@ -4,22 +4,22 @@ from random import randint
 import pygame
 from pygame.math import Vector2
 
-from base_polygon import BasePolygon
-from screen_constants import WIDTH, HEIGHT
+from .basepolygon import BasePolygon
+from ..screenconstants import SCREEN_W, SCREEN_H
 
 
 WHITE = (255, 255, 255)
 
 MIN_SIDES = 10
 # Controls how much radius of asteroid points can vary
-RADIUS_CONSTANT = HEIGHT // 120
-MIN_SPEED = 0.08 * HEIGHT
-MAX_SPEED = 0.18 * HEIGHT
+DR_CONSTANT = SCREEN_H // 120
+MIN_SPEED = 0.08 * SCREEN_H
+MAX_SPEED = 0.18 * SCREEN_H
 # Asteroid size to radius conversion
 RADIUS = {
-    3: 0.08 * HEIGHT,  # Large
-    2: 0.04 * HEIGHT,  # Medium
-    1: 0.02 * HEIGHT,  # Small
+    3: 0.08 * SCREEN_H,  # Large
+    2: 0.04 * SCREEN_H,  # Medium
+    1: 0.02 * SCREEN_H,  # Small
 }
 
 
@@ -33,18 +33,18 @@ class Asteroid(BasePolygon):
 
     def initial_centre(self):
         """Return random position near edge of screen."""
-        x = randint(0, WIDTH)
-        y = randint(0, HEIGHT)
-        while 0.25 < x / WIDTH < 0.75:
-            x = randint(0, WIDTH)
-        while 0.25 < y / HEIGHT < 0.75:
-            y = randint(0, HEIGHT)
+        x = randint(0, SCREEN_W)
+        y = randint(0, SCREEN_H)
+        while 0.25 < x / SCREEN_W < 0.75:
+            x = randint(0, SCREEN_W)
+        while 0.25 < y / SCREEN_H < 0.75:
+            y = randint(0, SCREEN_H)
         return (x, y)
 
     def random_points(self, centre=None):
         """Return list of random points about centre."""
         centre = self.initial_centre() if centre is None else centre
-        dr = RADIUS[self.size] // RADIUS_CONSTANT
+        dr = RADIUS[self.size] // DR_CONSTANT
         points = []
         theta = 0
         while theta < 360:

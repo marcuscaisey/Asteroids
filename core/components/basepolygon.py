@@ -3,7 +3,7 @@ from math import cos, sin
 from numpy import array, dot
 from pylygon import Polygon
 
-from screen_constants import WIDTH, HEIGHT, AREA
+from ..screenconstants import SCREEN_W, SCREEN_H, SCREEN_RECT
 
 
 class BasePolygon(Polygon):
@@ -47,16 +47,16 @@ class BasePolygon(Polygon):
         Wrap polygon to opposite side of screen if polygon leaves
         screen area.
         """
-        if self.collidepoly(AREA) is False:
+        if self.collidepoly(SCREEN_RECT) is False:
             # Polygon should only be wrapped if it's moving away from the edge
             # of the screen. Wrap by translating the polygon so that its
             # furthest point from the edge of the screen is now on the opposite
             # edge of the screen.
             if self.C[0] < 0 and self.velocity.x < 0:
-                self.move_ip(WIDTH - min(self.P, key=lambda x: x[0])[0], 0)
-            elif self.C[0] > WIDTH and self.velocity.x > 0:
+                self.move_ip(SCREEN_W - min(self.P, key=lambda x: x[0])[0], 0)
+            elif self.C[0] > SCREEN_W and self.velocity.x > 0:
                 self.move_ip(-max(self.P, key=lambda x: x[0])[0], 0)
             elif self.C[1] < 0 and self.velocity.y < 0:
-                self.move_ip(0, HEIGHT - min(self.P, key=lambda x: x[1])[1])
-            elif self.C[1] > HEIGHT and self.velocity.y > 0:
+                self.move_ip(0, SCREEN_H - min(self.P, key=lambda x: x[1])[1])
+            elif self.C[1] > SCREEN_H and self.velocity.y > 0:
                 self.move_ip(0, -max(self.P, key=lambda x: x[1])[1])

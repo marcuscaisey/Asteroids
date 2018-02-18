@@ -1,14 +1,12 @@
 from __future__ import division
 from random import uniform
 
-import pygame
+import pygame as pg
 import pygame.freetype
 
-from asteroid import Asteroid
-from hud import HUD
-from saucer import Saucer
-from screen_constants import WIDTH, HEIGHT
-from ship import Ship
+from .components import Asteroid, HUD, Saucer, Ship
+from .helpers import abs_asset_path
+from .screenconstants import SCREEN_W, SCREEN_H
 
 
 BLACK = (0, 0, 0)
@@ -31,24 +29,25 @@ SAUCER_SCORE = {
 EXTRA_LIFE_SCORE = 10000
 
 # Sizes for text on game over screen
-GAMEOVER_SIZE = 0.2 * HEIGHT
-SCORE_SIZE = 0.12 * HEIGHT
-PLAY_AGAIN_SIZE = 0.08 * HEIGHT
+GAMEOVER_SIZE = 0.2 * SCREEN_H
+SCORE_SIZE = 0.12 * SCREEN_H
+PLAY_AGAIN_SIZE = 0.08 * SCREEN_H
+FONT_PATH = abs_asset_path('fonts/Hyperspace.otf')
 
 MAX_FPS = 60
 
 
-class AsteroidsGame:
+class Game:
     """Asteroids game."""
 
     def __init__(self):
-        pygame.init()
-        pygame.display.set_caption('Asteroids')
-        pygame.mouse.set_visible(False)
-        self.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
-        self.clock = pygame.time.Clock()
+        pg.init()
+        pg.display.set_caption('Asteroids')
+        pg.mouse.set_visible(False)
+        self.surface = pg.display.set_mode((SCREEN_W, SCREEN_H), pg.FULLSCREEN)
+        self.clock = pg.time.Clock()
         self.exit = False
-        self.font = pygame.freetype.Font('Hyperspace.otf')
+        self.font = pygame.freetype.Font(FONT_PATH)
         self.highscore = 0
         self.reset()
 
@@ -100,19 +99,19 @@ class AsteroidsGame:
     def draw_text(self, text, y, size):
         """Draw text to surface centred at height y."""
         text_width = self.font.get_rect(text, size=size).width
-        x = 0.5 * (WIDTH - text_width)
+        x = 0.5 * (SCREEN_W - text_width)
         self.font.render_to(self.surface, (x, y), text, WHITE, size=size)
 
     def draw_game_over_screen(self):
         """Draw game after game over."""
         self.surface.fill(BLACK)
         # Calculations for spacing of text
-        v = 0.1 * HEIGHT
+        v = 0.1 * SCREEN_H
         h1 = self.font.get_rect('0', size=GAMEOVER_SIZE).height
         h2 = self.font.get_rect('0', size=SCORE_SIZE).height
         h3 = self.font.get_rect('0', size=PLAY_AGAIN_SIZE).height
         s2 = 0.5 * h2
-        s1 = 0.5 * (HEIGHT - 2 * v - h1 - 2 * h2 - h3 - s2)
+        s1 = 0.5 * (SCREEN_H - 2 * v - h1 - 2 * h2 - h3 - s2)
         y = v
         self.draw_text('game over', y, GAMEOVER_SIZE)
         y += h1 + s1
@@ -123,27 +122,27 @@ class AsteroidsGame:
         self.draw_text('press space to play again', y, PLAY_AGAIN_SIZE)
 
     def event_handler(self):
-        for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+        for event in pg.event.get():
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
                     self.exit = True
-                elif event.key == pygame.K_LEFT:
+                elif event.key == pg.K_LEFT:
                     self.ship.rotate_direction -= 1
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pg.K_RIGHT:
                     self.ship.rotate_direction += 1
-                elif event.key == pygame.K_UP:
+                elif event.key == pg.K_UP:
                     self.ship.boosting = True
-                elif event.key == pygame.K_SPACE:
+                elif event.key == pg.K_SPACE:
                     if self.lives > 0:
                         self.ship.shoot()
                     else:
                         self.reset()
-            elif event.type == pygame.KEYUP:
-                if event.key == pygame.K_LEFT:
+            elif event.type == pg.KEYUP:
+                if event.key == pg.K_LEFT:
                     self.ship.rotate_direction += 1
-                if event.key == pygame.K_RIGHT:
+                if event.key == pg.K_RIGHT:
                     self.ship.rotate_direction -= 1
-                elif event.key == pygame.K_UP:
+                elif event.key == pg.K_UP:
                     self.ship.boosting = False
 
     # NEATEN UP!!!
@@ -224,12 +223,6 @@ class AsteroidsGame:
                 self.draw()
             else:
                 self.draw_game_over_screen()
-            pygame.display.update()
+            pg.display.update()
 
 
-def main():
-    AsteroidsGame().play()
-
-
-if __name__ == '__main__':
-    main()
