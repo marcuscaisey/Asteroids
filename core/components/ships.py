@@ -14,6 +14,7 @@ WHITE = (255, 255, 255)
 # SHIP CONSTANTS
 SHIP_LENGTH = 0.07 * SCREEN_H
 SHIP_BOOST_FORCE = 0.55 * SCREEN_H
+INITIAL_CENTRE = (SCREEN_W / 2, SCREEN_H / 2)
 SHIP_ROTATE_SPEED = 0.8  # Full rotations per second
 SHIP_INVINCIBLE_TIME = 2  # Number of seconds ship will be invincible for
 SHIP_INVINCIBLE_FLICKER_RATE = 12  # Flickers per second when invincible
@@ -36,10 +37,11 @@ BULLET_LIFESPAN = 0.9  # Duration in seconds until bullet fades
 class Ship(BasePolygon):
     """Main ship object which is controlled by player."""
 
-    def __init__(self, length=SHIP_LENGTH, initial_centre=(SCREEN_W / 2, SCREEN_H / 2)):
-        self.length, self.width = length, 0.36 * length
-        self.rear_length, self.rear_width = 0.75 * length, 0.27 * length
-        self.flame_length, self.flame_width = 0.25 * length, 0.125 * length
+    def __init__(self, length=SHIP_LENGTH, initial_centre=INITIAL_CENTRE):
+        self.length = length
+        self.rear_length = 0.75 * length
+        self.flame_length = 0.25 * length
+        self.flame_width = 0.125 * length
         self.initial_centre = initial_centre
         self.rotate_direction = 0  # left = -1, 0 = none,  right = 1
         self.boosting = False
@@ -47,7 +49,7 @@ class Ship(BasePolygon):
 
     def spawn(self):
         """Spawn ship at initial centre."""
-        super(Ship, self).__init__(self.initial_points())
+        super(Ship, self).__init__(self.initial_points(), False)
         self.C = self.initial_centre
         self.direction = Vector2(0, -1)
         self.velocity = Vector2(0, 0)
@@ -57,7 +59,13 @@ class Ship(BasePolygon):
 
     def initial_points(self):
         """Return initial points of ship at origin."""
-        return [(-self.width, self.length), (0, 0), (self.width, self.length)]
+        return [
+            (-0.36 * self.length, self.length),
+            (-0.36 * self.rear_length, self.rear_length),
+            (0, 0),  # Nose
+            (0.36 * self.rear_length, self.rear_length),
+            (0.36 * self.length, self.length),
+            ]
 
     def move(self, x, y):
         """Return a new ship moved by (x, y)."""
@@ -69,9 +77,8 @@ class Ship(BasePolygon):
         self.rotate_ip(radians(theta))
 
     def shoot(self):
-        """Shoot bullet in direction ship is facing."""
-        # Bullets are fired from the nose of the ship
-        self.fired_bullets.append(Bullet(self.P[1], self.direction))
+        """Shoot bullet, from nose, in direction ship is facing."""
+        self.fired_bullets.append(Bullet(self.P[2], self.direction))
 
     def hits(self, other):
         """Return True if ship hits other and ship is not invincible."""
@@ -109,18 +116,9 @@ class Ship(BasePolygon):
             else:
                 bullet.update(dt)
 
-    def rear_points(self):
-        """Return points for rear of ship."""
-        # Rear of the ship is a horizontal line 3/4 of the way down the ship
-        origin = self.P[1] - (self.rear_length * self.direction)
-        return [
-            origin - self.rear_width * self.direction.rotate(90),
-            origin + self.rear_width * self.direction.rotate(90)
-        ]
-
     def flame_points(self):
-        """Return points for ship's boost flame."""
-        origin = self.P[1] - (self.rear_length * self.direction)
+        """Return points for ships boost flame."""
+        origin = self.P[2] - (self.rear_length * self.direction)
         return [
             origin - self.flame_width * self.direction.rotate(90),
             origin - self.flame_length * self.direction,
@@ -135,8 +133,9 @@ class Ship(BasePolygon):
         # invincible_duration by W and if result is odd then don't draw
         w = 1 / SHIP_INVINCIBLE_FLICKER_RATE
         if not self.invincible or (self.invincible_duration // w) % 2 == 0:
+            # Line joining points on opposite sides of ship
+            pygame.draw.aalines(surface, WHITE, False, [self.P[1], self.P[3]])
             pygame.draw.aalines(surface, WHITE, False, self.P)
-            pygame.draw.aalines(surface, WHITE, False, self.rear_points())
             if self.boosting:
                 pygame.draw.aalines(surface, WHITE, False, self.flame_points())
 
@@ -189,9 +188,11 @@ class Saucer(BasePolygon):
         """
         source = self.P[source_index]
         # Angle to ship from source point on saucer
-        inaccuracy = SAUCER_SMALL_INACCURACY if self.size == 1 else SAUCER_LARGE_INACCURACY
         theta = Vector2(*(ship.C - source)).as_polar()[1]
-        theta += randint(-inaccuracy, inaccuracy)
+        if self.size == 1:
+            theta += randint(-SAUCER_SMALL_INACCURACY, SAUCER_SMALL_INACCURACY)
+        elif self.size == 2:
+            theta += randint(-SAUCER_LARGE_INACCURACY, SAUCER_LARGE_INACCURACY)
         # Need to wrap theta after adding offset so that saucer doesn't
         # shoot through itself
         if source_index == 0:  # left
@@ -258,6 +259,7 @@ class Saucer(BasePolygon):
     def draw(self, surface):
         """Draw saucer to surface."""
         pygame.draw.aalines(surface, WHITE, True, self.P)
+        # Lines joining points on opposite sides of saucer
         pygame.draw.aalines(surface, WHITE, False, [self.P[0], self.P[4]])
         pygame.draw.aalines(surface, WHITE, False, [self.P[5], self.P[9]])
 
