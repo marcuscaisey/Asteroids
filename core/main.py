@@ -77,6 +77,11 @@ class Game:
         return [Asteroid() for _ in range(number_of_asteroids)]
 
     def generate_saucer(self, dt):
+        """
+        Add new saucer to list of saucers every SECONDS_PER_SAUCER
+        seconds, with SMALL_SAUCER_RATE probablity of adding a small
+        saucer.
+        """
         self.saucer_timer += dt
         if self.saucer_timer > SECONDS_PER_SAUCER:
             self.saucer_timer %= SECONDS_PER_SAUCER
@@ -121,29 +126,38 @@ class Game:
         y += h2 + s1
         self.draw_text('press space to play again', y, PLAY_AGAIN_SIZE)
 
+    def key_down(self, event):
+        """Process key down event."""
+        if event.key == pg.K_ESCAPE:
+            self.exit = True
+        elif event.key == pg.K_LEFT:
+            self.ship.rotate_direction -= 1
+        elif event.key == pg.K_RIGHT:
+            self.ship.rotate_direction += 1
+        elif event.key == pg.K_UP:
+            self.ship.boosting = True
+        elif event.key == pg.K_SPACE:
+            if self.lives > 0:
+                self.ship.shoot()
+            else:
+                self.reset()
+
+    def key_up(self, event):
+        """Process key up events."""
+        if event.key == pg.K_LEFT:
+            self.ship.rotate_direction += 1
+        if event.key == pg.K_RIGHT:
+            self.ship.rotate_direction -= 1
+        elif event.key == pg.K_UP:
+            self.ship.boosting = False
+
     def event_handler(self):
+        """Process key up and key down events."""
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    self.exit = True
-                elif event.key == pg.K_LEFT:
-                    self.ship.rotate_direction -= 1
-                elif event.key == pg.K_RIGHT:
-                    self.ship.rotate_direction += 1
-                elif event.key == pg.K_UP:
-                    self.ship.boosting = True
-                elif event.key == pg.K_SPACE:
-                    if self.lives > 0:
-                        self.ship.shoot()
-                    else:
-                        self.reset()
+                self.key_down(event)
             elif event.type == pg.KEYUP:
-                if event.key == pg.K_LEFT:
-                    self.ship.rotate_direction += 1
-                if event.key == pg.K_RIGHT:
-                    self.ship.rotate_direction -= 1
-                elif event.key == pg.K_UP:
-                    self.ship.boosting = False
+                self.key_up(event)
 
     # NEATEN UP!!!
     def update(self, dt):
