@@ -60,13 +60,13 @@ class Game:
         self.lives = 3
         self.score = 0
         self.hud = HUD()
-        self.start_of_round_timer = 0
         self.saucer_timer = 0
         self.extra_life_counter = 0
         self.start_new_round()
 
     def start_new_round(self):
         """Start new round."""
+        self.start_of_round_timer = 0
         self.round += 1
         self.asteroids[:] = self.generate_asteroids()
         self.ship.invincible = True
@@ -127,7 +127,7 @@ class Game:
         self.draw_text('press space to play again', y, PLAY_AGAIN_SIZE)
 
     def key_down(self, event):
-        """Process key down event."""
+        """Process key down events."""
         if event.key == pg.K_ESCAPE:
             self.exit = True
         elif event.key == pg.K_LEFT:
@@ -146,7 +146,7 @@ class Game:
         """Process key up events."""
         if event.key == pg.K_LEFT:
             self.ship.rotate_direction += 1
-        if event.key == pg.K_RIGHT:
+        elif event.key == pg.K_RIGHT:
             self.ship.rotate_direction -= 1
         elif event.key == pg.K_UP:
             self.ship.boosting = False
@@ -159,62 +159,76 @@ class Game:
             elif event.type == pg.KEYUP:
                 self.key_up(event)
 
-    # NEATEN UP!!!
+    def respawn_ship(self):
+        """
+        Respawn ship after it collides with another object or has been
+        shot.
+        """
+        self.lives -= 1
+        self.ship.spawn()
+
+    def check_collisions(self):
+        """Check for collisions between asteroids/saucers/ship."""
+        for asteroid in reversed(self.asteroids):
+            if asteroid.hits(self.ship):
+                self.destroy_asteroid(asteroid)
+                self.respawn_ship()
+            else:
+                for saucer in reversed(self.saucers):
+                    if asteroid.hits(saucer):
+                        self.destroy_asteroid(asteroid)
+                        self.destroy_saucer(saucer)
+        for saucer in reversed(self.saucers):
+            if saucer.hits(self.ship):
+                self.destroy_saucer(saucer)
+                self.respawn_ship()
+            else:
+                other_saucers = [x for x in self.saucers if x != saucer]
+                for other_saucer in reversed(other_saucers):
+                    if saucer.hits(other_saucer):
+                        self.destroy_saucer(other_saucer)
+                        self.destroy_saucer(saucer)
+
+    def check_shots(self):
+        """Check if any saucers/asteroids/ship have been shot."""
+        for asteroid in reversed(self.asteroids):
+            if self.ship.shoots(asteroid):
+                self.destroy_asteroid(asteroid)
+                self.score += ASTEROID_SCORE[asteroid.size]
+            else:
+                for saucer in self.saucers:
+                    if saucer.shoots(asteroid):
+                        self.destroy_asteroid(asteroid)
+        for saucer in reversed(self.saucers):
+            if saucer.shoots(self.ship):
+                self.respawn_ship()
+            if self.ship.shoots(saucer):
+                self.destroy_saucer(saucer)
+                self.score += SAUCER_SCORE[saucer.size]
+
     def update(self, dt):
         """Update game by dt seconds."""
         self.ship.update(dt)
+        for asteroid in self.asteroids:
+            asteroid.update(dt)
+        for saucer in self.saucers:
+            saucer.update(self.ship, dt)
+        self.generate_saucer(dt)
 
         if self.asteroids or self.saucers:
-            for asteroid in reversed(self.asteroids):
-                asteroid.update(dt)
-                if self.ship.hits(asteroid):
-                    self.destroy_asteroid(asteroid)
-                    self.lives -= 1
-                    self.ship.spawn()
-                elif self.ship.shoots(asteroid):
-                    self.destroy_asteroid(asteroid)
-                    self.score += ASTEROID_SCORE[asteroid.size]
-                else:
-                    for saucer in reversed(self.saucers):
-                        if saucer.hits(asteroid):
-                            self.destroy_asteroid(asteroid)
-                            self.destroy_saucer(saucer)
-                        elif saucer.shoots(asteroid):
-                            self.destroy_asteroid(asteroid)
-
-            for saucer in reversed(self.saucers):
-                saucer.update(self.ship, dt)
-                if self.ship.hits(saucer):
-                    self.destroy_saucer(saucer)
-                    self.lives -= 1
-                    self.ship.spawn()
-                elif self.ship.shoots(saucer):
-                    self.destroy_saucer(saucer)
-                    self.score += SAUCER_SCORE[saucer.size]
-                elif saucer.shoots(self.ship):
-                    self.lives -= 1
-                    self.ship.spawn()
-                else:
-                    other_saucers = [x for x in self.saucers if x != saucer]
-                    for other_saucer in reversed(other_saucers):
-                        if saucer.hits(other_saucer):
-                            self.destroy_saucer(other_saucer)
-                            self.destroy_saucer(saucer)
-                        elif saucer.shoots(other_saucer):
-                            self.destroy_saucer(other_saucer)
-
-            self.generate_saucer(dt)
-
-            if self.score > self.highscore:
-                self.highscore = self.score
-            if self.score // EXTRA_LIFE_SCORE == self.extra_life_counter + 1:
-                self.extra_life_counter += 1
-                self.lives += 1
+            self.check_collisions()
+            self.check_shots()
         else:
             self.start_of_round_timer += dt
             if self.start_of_round_timer > START_OF_ROUND_DELAY:
                 self.start_new_round()
-                self.start_of_round_timer = 0
+
+        if self.score > self.highscore:
+            self.highscore = self.score
+        # Player gets an extra life for every EXTRA_LIFE_SCORE points they get
+        if self.score // EXTRA_LIFE_SCORE == self.extra_life_counter + 1:
+            self.extra_life_counter += 1
+            self.lives += 1
 
     def draw(self):
         """Draw game while playing."""
@@ -238,5 +252,3 @@ class Game:
             else:
                 self.draw_game_over_screen()
             pg.display.update()
-
-
