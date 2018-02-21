@@ -44,19 +44,26 @@ class BasePolygon(Polygon):
 
     def wrap(self):
         """
-        Wrap polygon to opposite side of screen if polygon leaves
-        screen area.
+        Wrap polygon to opposite side of screen if polygon leaves screen
+        area.
         """
-        if self.collidepoly(SCREEN_RECT) is False:
-            # Polygon should only be wrapped if it's moving away from the edge
-            # of the screen. Wrap by translating the polygon so that its
-            # furthest point from the edge of the screen is now on the opposite
-            # edge of the screen.
-            if self.C[0] < 0 and self.velocity.x < 0:
-                self.move_ip(SCREEN_W - min(self.P, key=lambda x: x[0])[0], 0)
-            elif self.C[0] > SCREEN_W and self.velocity.x > 0:
-                self.move_ip(-max(self.P, key=lambda x: x[0])[0], 0)
-            elif self.C[1] < 0 and self.velocity.y < 0:
-                self.move_ip(0, SCREEN_H - min(self.P, key=lambda x: x[1])[1])
-            elif self.C[1] > SCREEN_H and self.velocity.y > 0:
-                self.move_ip(0, -max(self.P, key=lambda x: x[1])[1])
+        # Test whether centre of polygon is off screen first, since it's costly
+        # to call hits method
+        if not 0 <= self.C[0] <= SCREEN_W or not 0 <= self.C[1] <= SCREEN_H:
+            if not self.hits(SCREEN_RECT):
+                # Polygon should only be wrapped if it's moving away from the
+                # edge of the screen. Wrap by translating the polygon so that
+                # its furthest point from the edge of the screen is now on the
+                # opposite edge of the screen.
+                if self.C[0] < 0 and self.velocity.x < 0:
+                    min_x = min(self.P, key=lambda x: x[0])[0]
+                    self.move_ip(SCREEN_W - min_x, 0)
+                elif self.C[0] > SCREEN_W and self.velocity.x > 0:
+                    max_x = max(self.P, key=lambda x: x[0])[0]
+                    self.move_ip(-max_x, 0)
+                elif self.C[1] < 0 and self.velocity.y < 0:
+                    min_y = min(self.P, key=lambda x: x[1])[1]
+                    self.move_ip(0, SCREEN_H - min_y)
+                elif self.C[1] > SCREEN_H and self.velocity.y > 0:
+                    max_y = max(self.P, key=lambda x: x[1])[1]
+                    self.move_ip(0, -max_y)

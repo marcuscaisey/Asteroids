@@ -196,13 +196,17 @@ class Saucer(BasePolygon):
         # Need to wrap theta after adding offset so that saucer doesn't
         # shoot through itself
         if source_index == 0:  # left
-            theta_min, theta_max = 90, 270
+            theta_min = 90
+            theta_max = 270
         elif source_index == 2:  # bottom
-            theta_min, theta_max = 0, 180
+            theta_min = 0
+            theta_max = 180
         elif source_index == 4:  # right
-            theta_min, theta_max = -90, 90
+            theta_min = -90
+            theta_max = 90
         elif source_index == 7:  # top
-            theta_min, theta_max = -180, 0
+            theta_min = -180
+            theta_max = 0
         return Vector2(1, 0).rotate(self.wrap_int(theta, theta_min, theta_max))
 
     def shoot(self, ship):
@@ -234,11 +238,14 @@ class Saucer(BasePolygon):
         """
         Wrap saucer to opposite side of screen if it leaves screen area.
         """
-        if not self.hits(SCREEN_RECT):
-            if self.C[0] < 0 and self.direction == -1:
-                self.C = (SCREEN_W + self.width / 2, self.C[1])
-            elif self.C[0] > SCREEN_W and self.direction == 1:
-                self.C = (0 - self.width / 2, self.C[1])
+        # Test whether centre of saucer is off screen first, since it's costly
+        # to call hits method
+        if not 0 <= self.C[0] <= SCREEN_W:
+            if not self.hits(SCREEN_RECT):
+                if self.C[0] < 0 and self.direction == -1:
+                    self.C = (SCREEN_W + self.width / 2, self.C[1])
+                elif self.C[0] > SCREEN_W and self.direction == 1:
+                    self.C = (0 - self.width / 2, self.C[1])
 
     def update(self, ship, dt):
         """Update saucer by dt seconds."""
@@ -284,13 +291,16 @@ class Bullet(Vector2):
         """
         Wrap bullet to opposite side of screen if it leaves screen area.
         """
-        if not self.hits(SCREEN_RECT):
-            if ((self.centre.x < 0 and self.velocity.x < 0)
-               or (self.centre.x > SCREEN_W and self.velocity.x > 0)):
-                self.centre.x = SCREEN_W - self.centre.x
-            elif ((self.centre.y < 0 and self.velocity.y < 0)
-                  or (self.centre.y > SCREEN_H and self.velocity.y > 0)):
-                self.centre.y = SCREEN_H - self.centre.y
+        # Test whether centre is off screen first, since it's costly
+        # to call hits method
+        if not (0 <= self.centre <= SCREEN_W and 0 <= self.centre <= SCREEN_H):
+            if not self.hits(SCREEN_RECT):
+                if ((self.centre.x < 0 and self.velocity.x < 0)
+                   or (self.centre.x > SCREEN_W and self.velocity.x > 0)):
+                    self.centre.x = SCREEN_W - self.centre.x
+                elif ((self.centre.y < 0 and self.velocity.y < 0)
+                      or (self.centre.y > SCREEN_H and self.velocity.y > 0)):
+                    self.centre.y = SCREEN_H - self.centre.y
 
     def update(self, dt):
         """Update bullet by dt seconds."""
