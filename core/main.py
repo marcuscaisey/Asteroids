@@ -5,7 +5,7 @@ import pygame as pg
 import pygame.freetype
 
 from .components import Asteroid, HUD, Saucer, Ship
-from .helpers import abs_asset_path
+from .helpers import find_asset
 from .screenconstants import SCREEN_W, SCREEN_H
 
 
@@ -32,7 +32,7 @@ EXTRA_LIFE_SCORE = 10000
 GAMEOVER_SIZE = 0.2 * SCREEN_H
 SCORE_SIZE = 0.12 * SCREEN_H
 PLAY_AGAIN_SIZE = 0.08 * SCREEN_H
-FONT_PATH = abs_asset_path('fonts/Hyperspace.otf')
+FONT_PATH = find_asset('fonts\Hyperspace.otf')
 
 MAX_FPS = 60
 

@@ -1,13 +1,13 @@
 import pygame.freetype
 
-from ..helpers import abs_asset_path
+from ..helpers import find_asset
 from ..screenconstants import SCREEN_H
 from .ships import Ship
 
 
 WHITE = (255, 255, 255)
 
-FONT_PATH = abs_asset_path('fonts/Hyperspace.otf')
+FONT_PATH = find_asset('fonts\Hyperspace.otf')
 
 PADDING = 0.02 * SCREEN_H
 SCORE_SIZE = 0.06 * SCREEN_H
