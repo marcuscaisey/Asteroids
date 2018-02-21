@@ -15,14 +15,16 @@ If you don't have Python, then you can download it from [www.python.org/download
 
 ### Installing
 
+#### Windows
+- [Download the prebuilt zip file and unzip](https://github.com/marcuscaisey/Asteroids/releases/latest)
+- Run `asteroids.exe`
+
 #### From Source
-- Extract the zip
-- From the command line `cd` to the directory the zip extracted to and `cd` to `Asteroids-master`
-- Install the required dependencies with:
+- Install the required dependencies with
 ```
 pip install -r requirements.txt
 ```
-- Start the game with:
+- Start the game with
 ```
 python asteroids.py
 ```
