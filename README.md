@@ -37,3 +37,7 @@ python asteroids.py
 |Rotate right|<kbd>right</kbd>   |
 |Boost       |<kbd>up</kbd>      |
 |Shoot       |<kbd>spacebar</kbd>|
+
+## To Do
+
+- Add sound effects
